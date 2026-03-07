@@ -1,0 +1,152 @@
+[
+  {
+    "id": "eval_01",
+    "item_text": "다신 오지 않는 최저가 혜택! 오늘 방송에서만!",
+    "category": "생활용품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["긴급성/한정판매", "가격유인"],
+    "expected_evidence_keywords": ["한정", "최저가", "방송에서만"],
+    "note": "전형적인 긴급성 + 가격유인 복합 사례"
+  },
+  {
+    "id": "eval_02",
+    "item_text": "감기 예방에 탁월한 효과! 면역력을 확실히 높여드립니다",
+    "category": "건강기능식품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["허위/과장"],
+    "expected_evidence_keywords": ["질병", "치료", "예방", "효과", "오인"],
+    "note": "질병 치료/예방 효과 오인 표현 — 실제 사례 215건 존재"
+  },
+  {
+    "id": "eval_03",
+    "item_text": "본 제품은 식약처 인증 건강기능식품입니다",
+    "category": "건강기능식품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "OK",
+    "expected_risk_types": ["문제없음"],
+    "expected_evidence_keywords": [],
+    "note": "사실 기반 표현, 문제없는 경우"
+  },
+  {
+    "id": "eval_04",
+    "item_text": "근거불확실한 완벽 프리미엄 여행 패키지",
+    "category": "여행",
+    "broadcast_type": "녹화",
+    "expected_judgment": "주의",
+    "expected_risk_types": ["허위/과장"],
+    "expected_evidence_keywords": ["근거 불확실", "완벽", "프리미엄"],
+    "note": "근거 불확실 표현 — 실제 사례 353건으로 최다 유형"
+  },
+  {
+    "id": "eval_05",
+    "item_text": "타사 제품보다 3배 효과! 경쟁사는 따라올 수 없습니다",
+    "category": "생활용품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["부당비교", "허위/과장"],
+    "expected_evidence_keywords": ["비교", "과장", "시현"],
+    "note": "부당비교 + 과장 복합"
+  },
+  {
+    "id": "eval_06",
+    "item_text": "오직 방송에서만 이 구성! SK스토아 단독",
+    "category": "패션",
+    "broadcast_type": "생방송",
+    "expected_judgment": "주의",
+    "expected_risk_types": ["긴급성/한정판매"],
+    "expected_evidence_keywords": ["방송에서만", "단독", "한정"],
+    "note": "방송에서만 430건, 단독 83건 — 실제 최다 한정표현"
+  },
+  {
+    "id": "eval_07",
+    "item_text": "이 가격 마감임박! 딱 100개 한정수량",
+    "category": "생활용품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["긴급성/한정판매"],
+    "expected_evidence_keywords": ["마감", "한정", "긴급"],
+    "note": "긴급성 유발 전형 표현"
+  },
+  {
+    "id": "eval_08",
+    "item_text": "다이어트 효과까지! 살이 빠지는 기적의 식품",
+    "category": "건강기능식품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["허위/과장"],
+    "expected_evidence_keywords": ["효과", "단정", "과장"],
+    "note": "제품 효과 단정적 표현 — 실제 사례 87건"
+  },
+  {
+    "id": "eval_09",
+    "item_text": "라이선스 브랜드 캘빈클라인 정품 드로즈 세트",
+    "category": "패션",
+    "broadcast_type": "생방송",
+    "expected_judgment": "주의",
+    "expected_risk_types": ["방송심의일반"],
+    "expected_evidence_keywords": ["라이선스", "브랜드", "안내"],
+    "note": "라이선스 브랜드 안내 의무 — 실제 사례 162건"
+  },
+  {
+    "id": "eval_10",
+    "item_text": "원산지: 국내산 한우 1++ 등급, 제조원: (주)한우명가",
+    "category": "식품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "OK",
+    "expected_risk_types": ["문제없음"],
+    "expected_evidence_keywords": [],
+    "note": "원산지/제조원 정상 안내 — 문제없음"
+  },
+  {
+    "id": "eval_11",
+    "item_text": "최저가 최종가 이 가격 절대 없습니다",
+    "category": "생활용품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["가격유인", "긴급성/한정판매"],
+    "expected_evidence_keywords": ["최저가", "최종가", "가격"],
+    "note": "최저가 69건 + 최종가 56건 한정표현 실제 분포"
+  },
+  {
+    "id": "eval_12",
+    "item_text": "혈당 조절, 혈압 개선에 확실한 효과가 있습니다",
+    "category": "건강기능식품",
+    "broadcast_type": "녹화",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["허위/과장"],
+    "expected_evidence_keywords": ["질병", "치료", "예방", "효과", "단정"],
+    "note": "질병 관련 단정 표현"
+  },
+  {
+    "id": "eval_13",
+    "item_text": "면 100% 소재로 제작된 편안한 티셔츠입니다",
+    "category": "패션",
+    "broadcast_type": "녹화",
+    "expected_judgment": "OK",
+    "expected_risk_types": ["문제없음"],
+    "expected_evidence_keywords": [],
+    "note": "객관적 사실 표현"
+  },
+  {
+    "id": "eval_14",
+    "item_text": "피부 주름이 사라집니다! 10년 젊어지는 마법",
+    "category": "화장품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "위반소지",
+    "expected_risk_types": ["허위/과장"],
+    "expected_evidence_keywords": ["효과", "과장", "단정"],
+    "note": "화장품 효과 과장"
+  },
+  {
+    "id": "eval_15",
+    "item_text": "추석 전 완벽배송, 방송 중 결제완료 고객 한정",
+    "category": "식품",
+    "broadcast_type": "생방송",
+    "expected_judgment": "주의",
+    "expected_risk_types": ["긴급성/한정판매"],
+    "expected_evidence_keywords": ["추석", "한정", "방송"],
+    "note": "시즌 한정 — 실제 추석 관련 16건"
+  }
+]

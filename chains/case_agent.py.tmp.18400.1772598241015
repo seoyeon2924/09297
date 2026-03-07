@@ -1,0 +1,268 @@
+"""
+CaseAgent — 과거 심의 사례 전용 검색 에이전트.
+
+독립적인 retrieve → grade → rewrite 루프로 사례 검색만 담당한다.
+PolicyAgent와 완전히 분리되어 자리 경쟁 없이 최대 10건 사례를 확보한다.
+"""
+
+from __future__ import annotations
+
+import logging
+import re
+import time
+
+import httpx
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+
+from config import settings
+from tools.case_tools import search_cases
+
+logger = logging.getLogger(__name__)
+
+_http_client = httpx.Client(verify=False)
+
+
+def _strip_case_header(text: str) -> str:
+    """display_text 앞의 [처리번호: ...][처리일자: ...][심의지적코드: ...] 헤더 라인 제거."""
+    import re
+    stripped = re.sub(
+        r"^(\[(?:처리번호|처리일자|심의지적코드)\s*:[^\]]*\]\s*)+\n?",
+        "",
+        text,
+        count=1,
+    )
+    return stripped.strip()
+
+# ── 사례 관련성 배치 평가 프롬프트 ──────────────────────────────
+
+_GRADE_CASES_SYSTEM = """당신은 방송심의 사례 관련성 평가 전문가입니다.
+주어진 심의 대상 문구와 위험 유형에 대해, 각 사례가 심의 판단에 관련이 있는지 평가하세요.
+
+반드시 아래 JSON 형식으로만 응답하세요:
+{{
+    "grades": [
+        {{"doc_index": 1, "relevance": "relevant", "reason": "이유"}},
+        {{"doc_index": 2, "relevance": "irrelevant", "reason": "이유"}}
+    ]
+}}
+relevance는 반드시 "relevant" 또는 "irrelevant" 중 하나입니다."""
+
+_GRADE_CASES_HUMAN = """## 심의 대상 문구
+{item_text}
+
+## 위험 유형
+{risk_type}
+
+## 평가 대상 사례들
+{cases_text}
+
+위 사례들 각각에 대해 심의 대상 문구와의 관련성을 평가해주세요."""
+
+# ── 사례 쿼리 재작성 프롬프트 ────────────────────────────────────
+
+_REWRITE_CASE_SYSTEM = """당신은 방송심의 사례 검색 전문가입니다.
+이전 검색에서 관련 사례를 충분히 찾지 못했습니다.
+심의지적코드, 위반유형, 유사 제한표현에 집중하여 더 효과적인 검색 쿼리를 생성하세요.
+
+반드시 아래 JSON 형식으로만 응답하세요:
+{{"case_query": "개선된 검색 쿼리"}}"""
+
+_REWRITE_CASE_HUMAN = """## 심의 대상 문구
+{item_text}
+
+## 위험 유형
+{risk_type}
+
+## 이전 검색 쿼리
+{old_query}
+
+더 관련성 높은 사례를 찾기 위한 새로운 검색 쿼리를 생성해주세요."""
+
+
+# ── CaseAgent ────────────────────────────────────────────────────
+
+class CaseAgent:
+    """과거 심의 사례 전용 검색 에이전트.
+
+    독립 retrieve → grade → rewrite 루프를 자체적으로 실행하며,
+    PolicyAgent와 완전히 분리되어 사례를 독점적으로 확보한다.
+
+    ReviewChain의 case_agent_node에서 호출:
+        result = CaseAgent(model_name).run(query, item_text, risk_type)
+        → {"case_chunks": list[dict], "tool_logs": list[dict]}
+    """
+
+    def __init__(self, model_name: str = "gpt-4o-mini") -> None:
+        self.model_name = model_name
+        self._llm = ChatOpenAI(
+            model=model_name,
+            temperature=0,
+            api_key=settings.OPENAI_API_KEY or "dummy",
+            http_client=_http_client,
+            request_timeout=90,
+        )
+        self._parser = JsonOutputParser()
+
+    def run(
+        self,
+        query: str,
+        item_text: str,
+        risk_type: str,
+        max_retries: int = 3,
+    ) -> dict:
+        """사례 검색 → 관련성 평가 → 쿼리 개선 루프 실행.
+
+        Returns:
+            {"case_chunks": list[dict], "tool_logs": list[dict]}
+        """
+        tool_logs: list[dict] = []
+        retry = 0
+        current_query = query
+
+        while True:
+            # 1. Retrieve
+            start = time.time()
+            try:
+                raw = search_cases.invoke({"query": current_query})
+                case_chunks = raw.get("case_chunks", [])
+            except Exception as e:
+                logger.error("CaseAgent retrieve 실패: %s", e)
+                case_chunks = []
+
+            tool_logs.append({
+                "step": "case_retrieve",
+                "query": current_query,
+                "total": len(case_chunks),
+                "retry": retry,
+                "elapsed": round(time.time() - start, 2),
+            })
+
+            if not case_chunks:
+                if retry >= max_retries:
+                    break
+                current_query = self._rewrite(current_query, item_text, risk_type, tool_logs)
+                retry += 1
+                continue
+
+            # 2. Grade
+            relevant = self._grade(case_chunks, item_text, risk_type, tool_logs)
+
+            if relevant or retry >= max_retries:
+                logger.info(
+                    "CaseAgent: %d건 검색 → %d건 관련 사례 확보 (retry=%d)",
+                    len(case_chunks), len(relevant), retry,
+                )
+                return {"case_chunks": relevant, "tool_logs": tool_logs}
+
+            # 3. Rewrite and retry
+            current_query = self._rewrite(current_query, item_text, risk_type, tool_logs)
+            retry += 1
+
+        logger.warning("CaseAgent: 관련 사례 없음 (max_retries=%d 소진)", max_retries)
+        return {"case_chunks": [], "tool_logs": tool_logs}
+
+    # ── 내부 메서드 ──────────────────────────────────────────────
+
+    def _grade(
+        self,
+        chunks: list[dict],
+        item_text: str,
+        risk_type: str,
+        tool_logs: list[dict],
+    ) -> list[dict]:
+        """사례 관련성 LLM 배치 평가 (1회 호출로 전체 평가)."""
+        start = time.time()
+
+        cases_text_parts: list[str] = []
+        for i, chunk in enumerate(chunks, 1):
+            meta = chunk.get("metadata", {})
+            header_parts = []
+            if meta.get("case_number"):
+                header_parts.append(f"처리번호: {meta['case_number']}")
+            if meta.get("case_date"):
+                header_parts.append(f"처리일자: {meta['case_date']}")
+            if meta.get("violation_type"):
+                header_parts.append(f"위반유형: {meta['violation_type']}")
+            header = " | ".join(header_parts) if header_parts else "정보없음"
+            # content(=display_text)에서 [처리번호:...] 헤더 라인 제거하여 이중 노출 방지
+            raw_content = (chunk.get("content") or "")[:400]
+            content = _strip_case_header(raw_content)
+            cases_text_parts.append(f"[사례 {i}] {header}\n내용: {content}")
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", _GRADE_CASES_SYSTEM),
+            ("human", _GRADE_CASES_HUMAN),
+        ])
+        chain = prompt | self._llm | self._parser
+
+        try:
+            result = chain.invoke({
+                "item_text": item_text,
+                "risk_type": risk_type,
+                "cases_text": "\n\n---\n\n".join(cases_text_parts),
+            })
+            relevant_indices = {
+                g.get("doc_index", 0) - 1
+                for g in result.get("grades", [])
+                if g.get("relevance") == "relevant"
+            }
+            relevant = [c for i, c in enumerate(chunks) if i in relevant_indices]
+        except Exception as e:
+            logger.error("CaseAgent grade 실패, 전체 포함: %s", e)
+            relevant = chunks
+
+        tool_logs.append({
+            "step": "case_grade",
+            "total": len(chunks),
+            "relevant": len(relevant),
+            "elapsed": round(time.time() - start, 2),
+        })
+        return relevant
+
+    def _rewrite(
+        self,
+        old_query: str,
+        item_text: str,
+        risk_type: str,
+        tool_logs: list[dict],
+    ) -> str:
+        """사례 검색 쿼리 재작성."""
+        start = time.time()
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", _REWRITE_CASE_SYSTEM),
+            ("human", _REWRITE_CASE_HUMAN),
+        ])
+        chain = prompt | self._llm | self._parser
+
+        try:
+            result = chain.invoke({
+                "item_text": item_text,
+                "risk_type": risk_type,
+                "old_query": old_query,
+            })
+            new_query = result.get("case_query") or old_query
+        except Exception as e:
+            logger.error("CaseAgent rewrite 실패: %s", e)
+            new_query = old_query
+
+        tool_logs.append({
+            "step": "case_rewrite",
+            "old_query": old_query,
+            "new_query": new_query,
+            "elapsed": round(time.time() - start, 2),
+        })
+        return new_query
+
+
+# ── 모듈 레벨 싱글톤 ─────────────────────────────────────────────
+
+_case_agent: CaseAgent | None = None
+
+
+def get_case_agent(model_name: str = "gpt-4o-mini") -> CaseAgent:
+    global _case_agent
+    if _case_agent is None:
+        _case_agent = CaseAgent(model_name)
+    return _case_agent

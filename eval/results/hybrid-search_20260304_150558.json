@@ -1,0 +1,788 @@
+{
+  "summary": {
+    "judgment_accuracy": 0.6666666666666666,
+    "judgment_correct": 10,
+    "judgment_partial_score": 0.7666666666666667,
+    "risk_type_recall": 0.9,
+    "evidence_keyword_recall": 0.7511111111111112,
+    "evidence_has_refs_rate": 0.9333333333333333,
+    "avg_latency_sec": 55.3,
+    "total_latency_sec": 829.0,
+    "error_count": 0,
+    "tag": "hybrid-search",
+    "timestamp": "2026-03-04T15:05:58.382387",
+    "dataset_size": 15
+  },
+  "details": [
+    {
+      "id": "eval_01",
+      "item_text": "다신 오지 않는 최저가 혜택! 오늘 방송에서만!",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "긴급성/한정판매",
+        "가격유인"
+      ],
+      "actual_risk_type": "긴급성/한정판매, 가격유인",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.3333333333333333,
+        "ref_count": 0,
+        "has_refs": false,
+        "matched_keywords": [
+          "한정"
+        ],
+        "missed_keywords": [
+          "최저가",
+          "방송에서만"
+        ]
+      },
+      "reason": "유사 심의 사례에 따르면, 긴급성 및 한정판매를 강조하는 표현은 소비자에게 잘못된 인식을 줄 수 있어 주의가 필요하다.",
+      "ref_count": 0,
+      "latency_sec": 64.59,
+      "tool_logs_summary": {
+        "risk_types": [
+          "긴급성/한정판매",
+          "가격유인"
+        ],
+        "retrieval_queries": [
+          "긴급성 광고 사례",
+          "긴급성 광고 사례 OR 한정판매 OR 가격유인 OR 최저가 혜택",
+          "긴급성 광고 AND (한정판매 OR 가격유인 OR 최저가) AND (혜택 OR 할인 OR 프로모션)",
+          "긴급성 광고 AND (한정판매 OR 가격유인 OR 최저가) AND (혜택 OR 할인 OR 프로모션 OR '오늘만' OR '다신 오지 않는')",
+          "광고의 가격유인 관련 규정",
+          "광고 가격유인 규정 긴급성 한정판매 관련 법령 지침",
+          "광고 심의 긴급성 가격유인 한정판매 규정 법령 지침 최저가 혜택"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "answer_grade": "fail"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_02",
+      "item_text": "감기 예방에 탁월한 효과! 면역력을 확실히 높여드립니다",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "허위/과장"
+      ],
+      "actual_risk_type": "허위/과장",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.8,
+        "ref_count": 2,
+        "has_refs": true,
+        "matched_keywords": [
+          "질병",
+          "예방",
+          "효과",
+          "오인"
+        ],
+        "missed_keywords": [
+          "치료"
+        ]
+      },
+      "reason": "유사 심의 사례에 따르면, 건강기능식품에 관한 방송광고는 식품의약품안전처장이 인정하지 않은 기능성을 나타내는 표현을 하여서는 아니 되며, 질병 예방에 효능이 있는 것으로 인식할 우려가 있는 표현은 금지된다. 따라서 '감기 예방에 탁월한 효과!'라는 문구는 이러한 규정을 위반할 소지가 있다. 방송광고심의에 관한 규정 제25조 제2항에 의하면, 질병 예방에 효능이 있는 것으로 인식할 우려가 있는 표현은 사용해서는 안 된다.",
+      "ref_count": 2,
+      "latency_sec": 49.6,
+      "tool_logs_summary": {
+        "risk_types": [
+          "허위/과장"
+        ],
+        "retrieval_queries": [
+          "건강기능식품 허위과장 사례",
+          "허위과장 건강기능식품 면역력 효과 사례",
+          "허위과장 면역력 건강기능식품 효과 사례 심의지적코드",
+          "허위과장 면역력 효과 건강기능식품 심의지적코드 위반유형 사례",
+          "건강기능식품 광고 허위과장 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          3
+        ],
+        "grade_relevant": [
+          2
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_03",
+      "item_text": "본 제품은 식약처 인증 건강기능식품입니다",
+      "expected_judgment": "OK",
+      "actual_judgment": "위반소지",
+      "judgment_correct": false,
+      "judgment_partial_score": 0.0,
+      "expected_risk_types": [
+        "문제없음"
+      ],
+      "actual_risk_type": "방송심의일반",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 1.0,
+        "ref_count": 4,
+        "has_refs": true
+      },
+      "reason": "처리번호 117186 (2025-10-30) 건에 의하면, 건강기능식품의 경우 식약처 인증을 언급하는 것이 소비자에게 오인될 수 있는 표현으로 간주될 수 있습니다. 따라서, 해당 문구는 주의가 필요합니다.",
+      "ref_count": 4,
+      "latency_sec": 61.67,
+      "tool_logs_summary": {
+        "risk_types": [
+          "방송심의일반"
+        ],
+        "retrieval_queries": [
+          "식약처 인증 관련 광고 심의 사례",
+          "식약처 인증 건강기능식품 방송심의 사례, 건강기능식품 광고 심의 지적 사례, 방송심의 건강기능식품 인증 관련 위반 사례",
+          "식약처 인증 건강기능식품 관련 규정",
+          "식약처 인증 건강기능식품 방송심의 규정 및 지침",
+          "식약처 인증 건강기능식품 방송심의 법령 규정 지침 위험 유형"
+        ],
+        "retrieval_counts": [
+          0,
+          5,
+          0,
+          0,
+          0
+        ],
+        "grade_relevant": [
+          3
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_04",
+      "item_text": "근거불확실한 완벽 프리미엄 여행 패키지",
+      "expected_judgment": "주의",
+      "actual_judgment": "위반소지",
+      "judgment_correct": false,
+      "judgment_partial_score": 0.5,
+      "expected_risk_types": [
+        "허위/과장"
+      ],
+      "actual_risk_type": "허위/과장",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.3333333333333333,
+        "ref_count": 2,
+        "has_refs": true,
+        "matched_keywords": [
+          "완벽"
+        ],
+        "missed_keywords": [
+          "근거 불확실",
+          "프리미엄"
+        ]
+      },
+      "reason": "유사 심의 사례에 따르면, 광고에서 '완벽'이라는 표현은 소비자를 속이거나 잘못 알게 할 우려가 있는 과장된 표현으로 간주될 수 있습니다. 또한, 표시ㆍ광고의 공정화에 관한 법률 제3조에 따르면, 거짓 또는 과장의 표시ㆍ광고는 금지됩니다.",
+      "ref_count": 2,
+      "latency_sec": 53.97,
+      "tool_logs_summary": {
+        "risk_types": [
+          "허위/과장"
+        ],
+        "retrieval_queries": [
+          "허위과장 여행 패키지 광고 사례",
+          "허위 과장 광고 여행 패키지 심의 사례 근거 불확실한 프리미엄",
+          "허위 과장 광고 여행 패키지 심의 사례 근거 불확실한 프리미엄 여행",
+          "허위 과장 광고 여행 패키지 심의 사례 근거 불확실한 완벽 프리미엄",
+          "허위과장 광고 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "grade_relevant": [
+          2
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_05",
+      "item_text": "타사 제품보다 3배 효과! 경쟁사는 따라올 수 없습니다",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "부당비교",
+        "허위/과장"
+      ],
+      "actual_risk_type": "허위/과장, 부당비교",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.6666666666666666,
+        "ref_count": 8,
+        "has_refs": true,
+        "matched_keywords": [
+          "비교",
+          "과장"
+        ],
+        "missed_keywords": [
+          "시현"
+        ]
+      },
+      "reason": "처리번호 116829 (2025-10-21) 건에 의하면, '타사 제품보다 3배 효과! 경쟁사는 따라올 수 없습니다'라는 표현은 허위 또는 과장된 광고로 간주될 수 있으며, 다른 제품과의 부당한 비교로 해석될 수 있습니다. 이는 소비자를 속이거나 잘못 알게 할 우려가 있습니다.",
+      "ref_count": 8,
+      "latency_sec": 39.02,
+      "tool_logs_summary": {
+        "risk_types": [
+          "허위/과장",
+          "부당비교"
+        ],
+        "retrieval_queries": [
+          "허위과장 광고 사례",
+          "허위 광고 사례 OR 과장 광고 사례 OR 부당 비교 사례 OR 경쟁사 비교 광고 사례",
+          "허위과장 광고 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          5,
+          2
+        ],
+        "grade_relevant": [
+          5,
+          2
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_06",
+      "item_text": "오직 방송에서만 이 구성! SK스토아 단독",
+      "expected_judgment": "주의",
+      "actual_judgment": "위반소지",
+      "judgment_correct": false,
+      "judgment_partial_score": 0.5,
+      "expected_risk_types": [
+        "긴급성/한정판매"
+      ],
+      "actual_risk_type": "긴급성/한정판매",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.3333333333333333,
+        "ref_count": 2,
+        "has_refs": true,
+        "matched_keywords": [
+          "한정"
+        ],
+        "missed_keywords": [
+          "방송에서만",
+          "단독"
+        ]
+      },
+      "reason": "유사 심의 사례에 따르면, 긴급성이나 한정판매를 강조하는 표현은 소비자를 오도할 수 있는 미끼광고로 해석될 수 있습니다. 방송광고심의에 관한 규정 제14조에 의하면, 방송광고는 판매의 목적이 아닌 상품이나 용역을 제공한다는 내용을 표현함으로써 더욱 고가의 상품이나 용역을 구매하도록 유인하여서는 아니됩니다.",
+      "ref_count": 2,
+      "latency_sec": 71.98,
+      "tool_logs_summary": {
+        "risk_types": [
+          "긴급성/한정판매"
+        ],
+        "retrieval_queries": [
+          "한정판매 관련 심의 사례",
+          "긴급성 한정판매 방송 심의 사례",
+          "긴급성 한정판매 방송 심의 지적코드 위반유형 사례",
+          "긴급성 한정판매 방송 심의 지적코드 위반유형 사례 '단독' '오직 방송에서만'",
+          "긴급성 광고 규정",
+          "긴급성 광고 심의 규정 한정판매 방송법",
+          "방송 광고 긴급성 한정판매 심의 규정 방송법 조항"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          8
+        ],
+        "grade_relevant": [
+          0,
+          2
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_07",
+      "item_text": "이 가격 마감임박! 딱 100개 한정수량",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "긴급성/한정판매"
+      ],
+      "actual_risk_type": "긴급성/한정판매",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.3333333333333333,
+        "ref_count": 5,
+        "has_refs": true,
+        "matched_keywords": [
+          "한정"
+        ],
+        "missed_keywords": [
+          "마감",
+          "긴급"
+        ]
+      },
+      "reason": "처리번호 115853 (2025-09-08) 건에 의하면, 녹화방송에서 '수량부족', '종료임박' 등의 표현은 생방송으로 연상케 하여 사용이 불가하다고 지적되었습니다.",
+      "ref_count": 5,
+      "latency_sec": 37.33,
+      "tool_logs_summary": {
+        "risk_types": [
+          "긴급성/한정판매"
+        ],
+        "retrieval_queries": [
+          "긴급성 광고 사례",
+          "긴급성 한정판매 광고 사례, 한정수량 마감임박 표현, 긴급성 마케팅 위반 사례",
+          "긴급성 광고 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          5,
+          1
+        ],
+        "grade_relevant": [
+          4,
+          1
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_08",
+      "item_text": "다이어트 효과까지! 살이 빠지는 기적의 식품",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "허위/과장"
+      ],
+      "actual_risk_type": "허위/과장",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 1.0,
+        "ref_count": 7,
+        "has_refs": true,
+        "matched_keywords": [
+          "효과",
+          "단정",
+          "과장"
+        ],
+        "missed_keywords": []
+      },
+      "reason": "처리번호 118428 (2025-12-23) 건에 의하면, 제품 효과에 대한 단정적인 표현은 주의가 필요하다고 지적되었습니다. '살이 빠지는 기적의 식품'이라는 표현은 다이어트 효과를 단정적으로 주장하는 것으로, 허위 또는 과장된 광고로 해석될 수 있습니다.",
+      "ref_count": 7,
+      "latency_sec": 37.43,
+      "tool_logs_summary": {
+        "risk_types": [
+          "허위/과장"
+        ],
+        "retrieval_queries": [
+          "다이어트 제품 광고 허위과장 사례",
+          "다이어트 효과 허위 과장 광고 사례, 기적의 식품 허위 광고, 다이어트 제품 과장 표현 사례",
+          "건강기능식품 광고 허위과장 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          5,
+          3
+        ],
+        "grade_relevant": [
+          5,
+          2
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_09",
+      "item_text": "라이선스 브랜드 캘빈클라인 정품 드로즈 세트",
+      "expected_judgment": "주의",
+      "actual_judgment": "주의",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "방송심의일반"
+      ],
+      "actual_risk_type": "문제없음",
+      "risk_type_recall": 0.0,
+      "evidence": {
+        "keyword_recall": 1.0,
+        "ref_count": 5,
+        "has_refs": true,
+        "matched_keywords": [
+          "라이선스",
+          "브랜드",
+          "안내"
+        ],
+        "missed_keywords": []
+      },
+      "reason": "처리번호 119291 (2026-02-02) 건에 의하면, 라이선스 브랜드임을 충실히 안내 요망이라는 지적이 있었습니다. 따라서 '정품'이라는 표현이 소비자에게 혼동을 줄 수 있으므로 주의가 필요합니다.",
+      "ref_count": 5,
+      "latency_sec": 65.99,
+      "tool_logs_summary": {
+        "risk_types": [
+          "문제없음"
+        ],
+        "retrieval_queries": [
+          "라이선스 브랜드 캘빈클라인 정품 드로즈 세트",
+          "패션 광고 규정",
+          "패션 광고 심의 규정, 브랜드 광고 법령, 라이선스 제품 광고 지침, 드로즈 세트 광고 규정",
+          "패션 광고 심의 법령, 브랜드 라이선스 광고 규정, 의류 광고 심의 지침, 드로즈 제품 광고 법률, 상표 사용 광고 규정"
+        ],
+        "retrieval_counts": [
+          5,
+          1,
+          0,
+          2
+        ],
+        "grade_relevant": [
+          3,
+          0,
+          2
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_10",
+      "item_text": "원산지: 국내산 한우 1++ 등급, 제조원: (주)한우명가",
+      "expected_judgment": "OK",
+      "actual_judgment": "OK",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "문제없음"
+      ],
+      "actual_risk_type": "문제없음",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 1.0,
+        "ref_count": 1,
+        "has_refs": true
+      },
+      "reason": "처리건이 없으므로 유사 심의 사례에 따르면, 원산지 및 제조원 정보를 포함한 광고는 방송광고심의에 관한 규정 제25조 제1항에 부합하여 문제가 없습니다.",
+      "ref_count": 1,
+      "latency_sec": 47.28,
+      "tool_logs_summary": {
+        "risk_types": [
+          "문제없음"
+        ],
+        "retrieval_queries": [
+          "원산지: 국내산 한우 1++ 등급, 제조원: (주)한우명가",
+          "원산지 국내산 한우 1++ 등급 제조원 (주)한우명가 심의지적코드 위반유형",
+          "원산지 국내산 한우 1++ 등급 제조원 (주)한우명가 심의지적코드 위반유형 유사 제한표현",
+          "원산지 국내산 한우 1++ 등급 제조원 (주)한우명가 심의지적코드 위반유형 사례 유사 표현",
+          "식품 광고 원산지 표시 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "grade_relevant": [
+          1
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_11",
+      "item_text": "최저가 최종가 이 가격 절대 없습니다",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "가격유인",
+        "긴급성/한정판매"
+      ],
+      "actual_risk_type": "가격유인",
+      "risk_type_recall": 0.5,
+      "evidence": {
+        "keyword_recall": 1.0,
+        "ref_count": 1,
+        "has_refs": true,
+        "matched_keywords": [
+          "최저가",
+          "최종가",
+          "가격"
+        ],
+        "missed_keywords": []
+      },
+      "reason": "유사 심의 사례에 따르면, 방송광고심의에 관한 규정 제37조 제2항에 의거하여 일부에만 적용되는 최저가격을 일반가격으로 오인하게 하는 표현을 하여서는 아니된다. 따라서 '최저가 최종가 이 가격 절대 없습니다'라는 문구는 소비자에게 혼란을 줄 수 있는 표현으로 판단된다.",
+      "ref_count": 1,
+      "latency_sec": 69.46,
+      "tool_logs_summary": {
+        "risk_types": [
+          "가격유인"
+        ],
+        "retrieval_queries": [
+          "가격유인 관련 심의 사례",
+          "최저가 최종가 가격유인 심의 사례",
+          "최저가 최종가 가격유인 심의지적코드 위반유형 유사 제한표현",
+          "최저가 최종가 가격유인 심의지적코드 위반유형 유사 표현 '이 가격 절대 없습니다'",
+          "가격유인 관련 규정",
+          "최저가 최종가 가격유인 관련 방송심의 규정 법령 조항",
+          "최저가 최종가 가격유인 방송광고 심의 규정 법령 조항"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "grade_relevant": [
+          1
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_12",
+      "item_text": "혈당 조절, 혈압 개선에 확실한 효과가 있습니다",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "허위/과장"
+      ],
+      "actual_risk_type": "허위/과장",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.8,
+        "ref_count": 6,
+        "has_refs": true,
+        "matched_keywords": [
+          "질병",
+          "치료",
+          "예방",
+          "효과"
+        ],
+        "missed_keywords": [
+          "단정"
+        ]
+      },
+      "reason": "유사 심의 사례에 따르면, 건강기능식품 광고에서 '효능'을 과장하거나 질병 예방 및 치료에 대한 효과를 주장하는 것은 허용되지 않습니다. 방송광고심의에 관한 규정 제25조 제2항에 따르면, 질병 예방 및 치료에 효능이 있는 것으로 인식할 우려가 있는 표현은 금지됩니다.",
+      "ref_count": 6,
+      "latency_sec": 59.2,
+      "tool_logs_summary": {
+        "risk_types": [
+          "허위/과장"
+        ],
+        "retrieval_queries": [
+          "혈당 조절 광고 허위 사례",
+          "혈당 조절 효과 허위 과장 광고 사례 OR 혈압 개선 효과 허위 과장 광고 사례",
+          "혈당 조절 효과 허위 과장 광고 사례 OR 혈압 개선 효과 허위 과장 광고 사례 OR '확실한 효과' 허위 과장 OR '효과가 있습니다' 허위 과장 OR '효과 보장' 허위 과장",
+          "혈당 조절 효과 허위 과장 사례 OR 혈압 개선 효과 허위 과장 사례 OR '확실한 효과' AND (허위 OR 과장) OR '효과 보장' AND (허위 OR 과장) OR '효과가 있습니다' AND (허위 OR 과장)",
+          "건강기능식품 광고 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          9
+        ],
+        "grade_relevant": [
+          6
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_13",
+      "item_text": "면 100% 소재로 제작된 편안한 티셔츠입니다",
+      "expected_judgment": "OK",
+      "actual_judgment": "위반소지",
+      "judgment_correct": false,
+      "judgment_partial_score": 0.0,
+      "expected_risk_types": [
+        "문제없음"
+      ],
+      "actual_risk_type": "허위/과장",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 1.0,
+        "ref_count": 4,
+        "has_refs": true
+      },
+      "reason": "유사 심의 사례에 따르면, 허위 또는 과장된 표현은 소비자를 오인하게 할 수 있는 내용으로 간주되며, 방송광고심의에 관한 규정 제18조 제1항에 따라 진실한 내용을 요구하고 있습니다.",
+      "ref_count": 4,
+      "latency_sec": 51.96,
+      "tool_logs_summary": {
+        "risk_types": [
+          "허위/과장"
+        ],
+        "retrieval_queries": [
+          "허위/과장 광고 사례",
+          "허위 과장 광고 사례 면 100% 소재 티셔츠",
+          "허위 과장 광고 사례 면 100% 티셔츠 소재 관련 심의 지적",
+          "허위 과장 광고 사례 면 100% 티셔츠 소재 심의 지적코드 위반유형",
+          "허위 광고 관련 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          6
+        ],
+        "grade_relevant": [
+          4
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_14",
+      "item_text": "피부 주름이 사라집니다! 10년 젊어지는 마법",
+      "expected_judgment": "위반소지",
+      "actual_judgment": "위반소지",
+      "judgment_correct": true,
+      "judgment_partial_score": 1.0,
+      "expected_risk_types": [
+        "허위/과장"
+      ],
+      "actual_risk_type": "허위/과장",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 0.6666666666666666,
+        "ref_count": 1,
+        "has_refs": true,
+        "matched_keywords": [
+          "효과",
+          "과장"
+        ],
+        "missed_keywords": [
+          "단정"
+        ]
+      },
+      "reason": "유사 심의 사례에 따르면, 화장품 광고에서 '10년 젊어지는 마법'과 같은 표현은 소비자에게 허위 또는 과장된 효과를 전달할 우려가 있습니다. 방송광고심의에 관한 규정 제31조에 따르면, 화장품 광고는 의약품으로 잘못 인식할 우려가 있는 표현을 사용해서는 안 됩니다.",
+      "ref_count": 1,
+      "latency_sec": 50.76,
+      "tool_logs_summary": {
+        "risk_types": [
+          "허위/과장"
+        ],
+        "retrieval_queries": [
+          "화장품 허위과장 광고 심의 사례",
+          "화장품 광고 허위 과장 심의 사례 주름 개선 10년 젊어짐",
+          "화장품 광고 허위 과장 심의 사례 피부 주름 개선 효과 10년 젊어짐 마법 표현",
+          "화장품 광고 허위 과장 심의 사례 피부 주름 개선 효과 10년 젊어짐 마법 표현 위반유형 허위 과장",
+          "화장품 광고 허위과장 규정"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "grade_relevant": [
+          1
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    },
+    {
+      "id": "eval_15",
+      "item_text": "추석 전 완벽배송, 방송 중 결제완료 고객 한정",
+      "expected_judgment": "주의",
+      "actual_judgment": "위반소지",
+      "judgment_correct": false,
+      "judgment_partial_score": 0.5,
+      "expected_risk_types": [
+        "긴급성/한정판매"
+      ],
+      "actual_risk_type": "긴급성/한정판매",
+      "risk_type_recall": 1.0,
+      "evidence": {
+        "keyword_recall": 1.0,
+        "ref_count": 4,
+        "has_refs": true,
+        "matched_keywords": [
+          "추석",
+          "한정",
+          "방송"
+        ],
+        "missed_keywords": []
+      },
+      "reason": "처리번호 115445 (2025-08-25) 건에 의하면, '명절 전 완벽 배송'과 같은 한정 표현은 주의가 필요합니다. 방송 중 결제완료 고객 한정이라는 조건이 명확히 전달되지 않을 경우 소비자에게 오해를 불러일으킬 수 있습니다.",
+      "ref_count": 4,
+      "latency_sec": 68.8,
+      "tool_logs_summary": {
+        "risk_types": [
+          "긴급성/한정판매"
+        ],
+        "retrieval_queries": [
+          "긴급성 광고 사례",
+          "긴급성 광고 사례 OR 한정판매 사례 OR '완벽배송' AND '결제완료 고객 한정'",
+          "'긴급성 광고' OR '한정판매' OR '완벽배송' AND ('결제완료 고객' OR '한정 고객' OR '특정 고객 대상')",
+          "'긴급성' AND ('한정판매' OR '한정 고객' OR '특정 고객') AND ('완벽배송' OR '배송 보장') AND ('결제 완료' OR '결제 고객' OR '구매 고객')",
+          "긴급성 광고 규정",
+          "긴급성 광고 규정 한정판매 방송 심의 지침",
+          "긴급성 광고 규정 한정판매 방송 심의 법령 지침 조항"
+        ],
+        "retrieval_counts": [
+          0,
+          0,
+          0,
+          4,
+          1,
+          0,
+          0
+        ],
+        "grade_relevant": [
+          3,
+          0
+        ],
+        "answer_grade": "pass"
+      },
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "langsmith_project": "broadcast-review-BEFORE-1",
+  "summary": {
+    "accuracy": "4/5",
+    "avg_total_time": 16.56,
+    "avg_grade_time": 0.0,
+    "grade_errors": 0
+  },
+  "details": [
+    {
+      "item_text": "다신 오지 않는 최저가 혜택",
+      "expected": "위반소지",
+      "judgment": "위반소지",
+      "correct": true,
+      "total_elapsed": 13.46,
+      "grade_elapsed": 0.0,
+      "grade_total": 20,
+      "grade_relevant": 20,
+      "grade_method": "score_threshold",
+      "grade_error": null
+    },
+    {
+      "item_text": "어린이 면역력 증진에 도움이 됨",
+      "expected": "위반소지",
+      "judgment": "위반소지",
+      "correct": true,
+      "total_elapsed": 18.81,
+      "grade_elapsed": 0.0,
+      "grade_total": 20,
+      "grade_relevant": 20,
+      "grade_method": "score_threshold",
+      "grade_error": null
+    },
+    {
+      "item_text": "감기 걸리지 않는 아이로 만들어 드립니다",
+      "expected": "위반소지",
+      "judgment": "위반소지",
+      "correct": true,
+      "total_elapsed": 11.6,
+      "grade_elapsed": 0.0,
+      "grade_total": 20,
+      "grade_relevant": 20,
+      "grade_method": "score_threshold",
+      "grade_error": null
+    },
+    {
+      "item_text": "본 제품은 식약처 인증 건강기능식품입니다",
+      "expected": "적합",
+      "judgment": "주의",
+      "correct": false,
+      "total_elapsed": 22.01,
+      "grade_elapsed": 0.0,
+      "grade_total": 20,
+      "grade_relevant": 20,
+      "grade_method": "score_threshold",
+      "grade_error": null
+    },
+    {
+      "item_text": "다이어트 효과까지 !!",
+      "expected": "위반소지",
+      "judgment": "위반소지",
+      "correct": true,
+      "total_elapsed": 16.9,
+      "grade_elapsed": 0.0,
+      "grade_total": 20,
+      "grade_relevant": 20,
+      "grade_method": "score_threshold",
+      "grade_error": null
+    }
+  ]
+}

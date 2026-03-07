@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 8 .venv/Scripts/python -c:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(timeout 20 .venv/Scripts/python:*)",
+      "Bash(timeout 5 .venv/Scripts/python:*)",
+      "Bash(echo:*)",
+      "Bash(timeout 6 .venv/Scripts/python:*)",
+      "Bash(timeout 10 .venv/Scripts/python:*)",
+      "Bash(timeout 12 .venv/Scripts/python:*)",
+      "Bash(timeout 8 .venv/Scripts/python.exe:*)"
+    ]
+  }
+}
