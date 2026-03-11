@@ -249,8 +249,9 @@ div[data-testid="stDataFrame"] {
 # ── Database initialisation ──
 from storage.database import init_db  # noqa: E402
 
+print("[DEBUG] init_db 전", flush=True)
 init_db()
-print("[DEBUG] init_db 완료", flush=True)
+print("[DEBUG] init_db 후", flush=True)
 
 # ── Session state defaults ──
 if "current_page" not in st.session_state:

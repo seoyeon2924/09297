@@ -28,3 +28,10 @@ Thumbs.db
 # ── Logs ──
 *.log
 logs/
+
+# ── Temp files ──
+*.tmp.*
+*.tmp
+
+# ── Claude ──
+.claude/
