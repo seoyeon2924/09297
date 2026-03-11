@@ -9,6 +9,8 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Optional
 
+from sqlalchemy import func
+
 from storage.database import SessionLocal
 from storage.models import (
     ReferenceDocument,
@@ -168,9 +170,41 @@ class DocumentRepository:
                     "source_file": c.source_file,
                     "doc_type": c.doc_type,
                     "chroma_id": c.chroma_id,
+                    "section_title": c.section_title,
+                    "keywords": c.keywords,
+                    "advanced_meta_status": c.advanced_meta_status,
                 }
                 for c in chunks
             ]
+
+    @staticmethod
+    def update_chunk_advanced_meta(
+        chunk_id: str,
+        section_title: str,
+        keywords: list,
+        status: str,
+    ) -> None:
+        """Chunk의 section_title, keywords, advanced_meta_status 업데이트."""
+        with get_db() as db:
+            chunk = db.query(Chunk).filter_by(id=chunk_id).first()
+            if chunk:
+                chunk.section_title = section_title
+                chunk.keywords = keywords
+                chunk.advanced_meta_status = status
+
+    @staticmethod
+    def update_document_advanced_meta_status(
+        document_id: str, status: str
+    ) -> None:
+        """ReferenceDocument의 advanced_meta_status 업데이트."""
+        with get_db() as db:
+            doc = (
+                db.query(ReferenceDocument)
+                .filter_by(id=document_id)
+                .first()
+            )
+            if doc:
+                doc.advanced_meta_status = status
 
 
 # ═══════════════════════════════════════════
@@ -217,32 +251,40 @@ class ReviewRepository:
     @staticmethod
     def list_requests(status_filter: Optional[str] = None) -> list[dict]:
         with get_db() as db:
-            q = db.query(ReviewRequest).order_by(
-                ReviewRequest.created_at.desc()
+            item_count_sq = (
+                db.query(
+                    ReviewItem.request_id,
+                    func.count(ReviewItem.id).label("cnt"),
+                )
+                .group_by(ReviewItem.request_id)
+                .subquery()
+            )
+
+            q = (
+                db.query(ReviewRequest, item_count_sq.c.cnt)
+                .outerjoin(
+                    item_count_sq,
+                    ReviewRequest.id == item_count_sq.c.request_id,
+                )
+                .order_by(ReviewRequest.created_at.desc())
             )
             if status_filter:
                 q = q.filter(ReviewRequest.status == status_filter)
-            requests = q.all()
 
-            results = []
-            for r in requests:
-                item_count = (
-                    db.query(ReviewItem).filter_by(request_id=r.id).count()
-                )
-                results.append(
-                    {
-                        "id": r.id,
-                        "product_name": r.product_name,
-                        "category": r.category,
-                        "broadcast_type": r.broadcast_type,
-                        "status": r.status,
-                        "requested_by": r.requested_by,
-                        "item_count": item_count,
-                        "created_at": r.created_at,
-                        "decided_at": r.decided_at,
-                    }
-                )
-            return results
+            return [
+                {
+                    "id": r.id,
+                    "product_name": r.product_name,
+                    "category": r.category,
+                    "broadcast_type": r.broadcast_type,
+                    "status": r.status,
+                    "requested_by": r.requested_by,
+                    "item_count": cnt or 0,
+                    "created_at": r.created_at,
+                    "decided_at": r.decided_at,
+                }
+                for r, cnt in q.all()
+            ]
 
     @staticmethod
     def get_detail(request_id: str) -> Optional[dict]:

@@ -26,11 +26,17 @@ def _run_ai_with_streaming(request_id: str) -> None:
 
     with st.status("🚀 AI 심의 파이프라인 실행 중...", expanded=True) as status:
         try:
+            current_item = ""
             for event in stream_review_sse(request_id):
                 node = event.get("node", "")
                 summary = event.get("summary", "")
                 elapsed = event.get("elapsed", 0)
+                item_label = event.get("item_label", "")
                 display = NODE_DISPLAY.get(node, {"icon": "⚙️", "label": node})
+
+                if item_label and item_label != current_item:
+                    current_item = item_label
+                    st.markdown(f"---\n**📝 {item_label}** ⏳")
 
                 st.write(
                     f"{display['icon']} **{display['label']}** — {summary}  `{elapsed:.1f}s`"
@@ -165,8 +171,12 @@ def render() -> None:
                 ),
                 horizontal=True,
             )
+            draft = _generate_comment_draft(items)
             comment = st.text_area(
-                "심의 코멘트", placeholder="심의 의견을 작성하세요"
+                "심의 코멘트",
+                value=draft,
+                placeholder="심의 의견을 작성하세요",
+                height=200,
             )
             decided_by = st.text_input(
                 "심의자", placeholder="예: 박심의위원"
@@ -208,6 +218,35 @@ _JUDGMENT_ICON = {
 }
 
 
+def _generate_comment_draft(items: list[dict]) -> str:
+    """AI 추천 결과를 기반으로 심의 코멘트 초안을 생성한다. LLM 호출 없이 포맷팅만."""
+    lines = []
+    judgment_counts = {"위반소지": 0, "주의": 0, "OK": 0}
+
+    for item in items:
+        rec = item.get("ai_recommendation")
+        if not rec:
+            continue
+        judgment = rec.get("judgment", "")
+        reason = rec.get("reason", "")
+        icon = _JUDGMENT_ICON.get(judgment, "⚪")
+        judgment_counts[judgment] = judgment_counts.get(judgment, 0) + 1
+
+        lines.append(f"[{item['label']}] {icon} {judgment}")
+        if reason:
+            lines.append(f"  - {reason}")
+        lines.append("")
+
+    summary_parts = []
+    for j, count in judgment_counts.items():
+        if count > 0:
+            summary_parts.append(f"{j} {count}건")
+    if summary_parts:
+        lines.append(f"종합: {', '.join(summary_parts)}")
+
+    return "\n".join(lines)
+
+
 def _render_recommendation(rec: dict, item_id: str = "") -> None:
     """Render a single AI recommendation block."""
     icon = _JUDGMENT_ICON.get(rec["judgment"], "\u26AA")
@@ -237,23 +276,18 @@ def _render_recommendation(rec: dict, item_id: str = "") -> None:
             doc_filename = ref.get("doc_filename", "-")
             section_title = ref.get("section_title", "")
             score = ref.get("relevance_score", "-")
-            content = ref.get("content", "")
 
             if doc_type == "사례" and case_number:
                 date_str = f" ({case_date})" if case_date else ""
-                label = f"처리번호 {case_number}{date_str}"
+                label = f"[{doc_type}] 처리번호 {case_number}{date_str} · score: {score}"
             elif article_number:
-                label = f"`{doc_filename}` {article_number}"
-                if section_title:
-                    label += f" ({section_title})"
+                section_str = f" ({section_title})" if section_title else ""
+                label = f"[{doc_type}] `{doc_filename}` {article_number}{section_str} · score: {score}"
             else:
-                label = f"`{doc_filename}`"
-                if section_title:
-                    label += f" · {section_title}"
+                section_str = f" · {section_title}" if section_title else ""
+                label = f"[{doc_type}] `{doc_filename}`{section_str} · score: {score}"
 
-            expander_title = f"{i}. [{doc_type}] {label} · score: {score}"
-            with st.expander(expander_title):
-                st.caption(content)
+            st.caption(f"{i}. {label}")
     elif all_refs:
         st.caption("⚠️ 근거 문서를 검색했으나 유효한 내용을 가져오지 못했습니다.")
 

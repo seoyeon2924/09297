@@ -6,6 +6,7 @@ Run:
 """
 
 import sys
+from importlib import import_module
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -19,14 +20,13 @@ st.set_page_config(
     layout="wide",
 )
 
-# ── Global CSS ──
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* ========================================
-   Soft Indigo Pastel Theme
-   ======================================== */
+# ── Cached static HTML/CSS (작업 3+6: 매 rerun마다 재파싱 방지) ──
+
+@st.cache_data
+def _global_css() -> str:
+    return """<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 *, *::before, *::after {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -36,14 +36,12 @@ st.markdown("""
     background-color: #F8F7FF;
 }
 
-/* ── Top header bar ── */
 header[data-testid="stHeader"] {
     background: rgba(248, 247, 255, 0.85) !important;
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(123, 111, 232, 0.15);
 }
 
-/* ── Sidebar ── */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #F0EEFF 0%, #E8E3FF 100%) !important;
     border-right: 1px solid rgba(123, 111, 232, 0.2);
@@ -52,7 +50,6 @@ section[data-testid="stSidebar"] > div {
     padding-top: 0.75rem;
 }
 
-/* ── Headings ── */
 h1 {
     color: #1E1B4B !important;
     font-weight: 800 !important;
@@ -71,7 +68,6 @@ h3 {
     font-weight: 600 !important;
 }
 
-/* ── Primary Buttons ── */
 button[data-testid="baseButton-primary"],
 .stButton > button[kind="primary"] {
     background: linear-gradient(135deg, #7B6FE8 0%, #5B4ED0 100%) !important;
@@ -91,7 +87,6 @@ button[data-testid="baseButton-primary"]:hover,
     transform: translateY(-1px) !important;
 }
 
-/* ── Secondary Buttons ── */
 button[data-testid="baseButton-secondary"],
 .stButton > button[kind="secondary"] {
     background: #fff !important;
@@ -108,7 +103,6 @@ button[data-testid="baseButton-secondary"]:hover,
     border-color: #7B6FE8 !important;
 }
 
-/* ── Form Submit Button ── */
 div[data-testid="stFormSubmitButton"] > button {
     background: linear-gradient(135deg, #7B6FE8 0%, #5B4ED0 100%) !important;
     color: #fff !important;
@@ -125,7 +119,6 @@ div[data-testid="stFormSubmitButton"] > button:hover {
     box-shadow: 0 4px 16px rgba(91, 78, 208, 0.4) !important;
 }
 
-/* ── Expander ── */
 div[data-testid="stExpander"] {
     background: #fff !important;
     border: 1px solid #DDD8FF !important;
@@ -144,7 +137,6 @@ div[data-testid="stExpander"] > details > summary:hover {
     background: #EDE9FF !important;
 }
 
-/* ── Metric cards ── */
 div[data-testid="stMetric"] {
     background: #fff !important;
     border: 1px solid #DDD8FF;
@@ -166,7 +158,6 @@ div[data-testid="stMetricValue"] {
     font-size: 1.8rem !important;
 }
 
-/* ── Text inputs & Textarea ── */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
     border: 1.5px solid #DDD8FF !important;
@@ -182,14 +173,12 @@ div[data-testid="stMetricValue"] {
     box-shadow: 0 0 0 3px rgba(123, 111, 232, 0.15) !important;
 }
 
-/* ── Selectbox ── */
 div[data-testid="stSelectbox"] > div > div {
     border: 1.5px solid #DDD8FF !important;
     border-radius: 10px !important;
     background: #fff !important;
 }
 
-/* ── File Uploader ── */
 div[data-testid="stFileUploader"] {
     border: 2px dashed #C7C2F8 !important;
     border-radius: 14px !important;
@@ -200,18 +189,15 @@ div[data-testid="stFileUploader"]:hover {
     border-color: #7B6FE8 !important;
 }
 
-/* ── Alert boxes ── */
 div[data-baseweb="notification"] {
     border-radius: 10px !important;
 }
 
-/* ── Divider ── */
 hr {
     border-color: #E0DCFF !important;
     opacity: 0.8;
 }
 
-/* ── Code blocks ── */
 code {
     background: #EDE9FF !important;
     border-radius: 5px !important;
@@ -220,55 +206,30 @@ code {
     font-size: 0.82em !important;
 }
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #F0EEFF; }
 ::-webkit-scrollbar-thumb { background: #C7C2F8; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #7B6FE8; }
 
-/* ── Spinner ── */
 div[data-testid="stSpinner"] > div {
     border-top-color: #7B6FE8 !important;
 }
 
-/* ── Caption text ── */
 .stCaption, small {
     color: #8B86C0 !important;
 }
 
-/* ── DataFrame / table ── */
 div[data-testid="stDataFrame"] {
     border-radius: 12px !important;
     overflow: hidden;
     border: 1px solid #DDD8FF !important;
 }
-</style>
-""", unsafe_allow_html=True)
+</style>"""
 
 
-# ── Database initialisation ──
-from storage.database import init_db  # noqa: E402
-
-print("[DEBUG] init_db 전", flush=True)
-init_db()
-print("[DEBUG] init_db 후", flush=True)
-
-# ── Session state defaults ──
-if "current_page" not in st.session_state:
-    st.session_state.current_page = "knowledge"
-
-# ── Page registry ──
-MAIN_PAGES: list[tuple[str, str]] = [
-    ("📚 기준지식 관리", "knowledge"),
-    ("📝 심의요청 등록", "request"),
-    ("📋 심의요청 목록", "list"),
-]
-
-# ── Sidebar navigation ──
-with st.sidebar:
-    # 브랜드 배너
-    st.markdown("""
-    <div style="
+@st.cache_data
+def _sidebar_banner_html() -> str:
+    return """<div style="
         margin: 0 0.5rem 0.5rem 0.5rem;
         padding: 18px 16px 16px;
         background: linear-gradient(135deg, #fff 0%, #F5F3FF 100%);
@@ -306,9 +267,51 @@ with st.sidebar:
             border-radius: 20px;
             letter-spacing: 0.5px;
         ">MVP v0.1</div>
-    </div>
-    """, unsafe_allow_html=True)
+    </div>"""
 
+
+@st.cache_data
+def _sidebar_footer_html() -> str:
+    return """<div style="
+        position: fixed;
+        bottom: 1.5rem;
+        left: 0;
+        width: 240px;
+        text-align: center;
+        font-size: 0.62rem;
+        color: #A09CC8;
+        padding: 0 1rem;
+        line-height: 1.6;
+    ">
+        ⚡ Powered by LangGraph &amp; Claude<br>
+        <span style="opacity: 0.6;">방송통신심의위원회 규정 기반</span>
+    </div>"""
+
+
+st.markdown(_global_css(), unsafe_allow_html=True)
+
+
+# ── Database initialisation (작업 4: session_state 플래그로 1회만 실행) ──
+if not st.session_state.get("_db_initialized"):
+    from storage.database import init_db  # noqa: E402
+    init_db()
+    st.session_state["_db_initialized"] = True
+
+
+# ── Session state defaults ──
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "knowledge"
+
+# ── Page registry ──
+MAIN_PAGES: list[tuple[str, str]] = [
+    ("📚 기준지식 관리", "knowledge"),
+    ("📝 심의요청 등록", "request"),
+    ("📋 심의요청 목록", "list"),
+]
+
+# ── Sidebar navigation ──
+with st.sidebar:
+    st.markdown(_sidebar_banner_html(), unsafe_allow_html=True)
     st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
 
     for label, page_key in MAIN_PAGES:
@@ -323,7 +326,6 @@ with st.sidebar:
                 st.session_state.current_page = page_key
                 st.rerun()
 
-    # Detail page back button
     if st.session_state.current_page == "detail":
         st.divider()
         st.caption("🔍 심의 상세 화면")
@@ -335,37 +337,17 @@ with st.sidebar:
             st.session_state.current_page = "list"
             st.rerun()
 
-    # 사이드바 하단
-    st.markdown("""
-    <div style="
-        position: fixed;
-        bottom: 1.5rem;
-        left: 0;
-        width: 240px;
-        text-align: center;
-        font-size: 0.62rem;
-        color: #A09CC8;
-        padding: 0 1rem;
-        line-height: 1.6;
-    ">
-        ⚡ Powered by LangGraph &amp; Claude<br>
-        <span style="opacity: 0.6;">방송통신심의위원회 규정 기반</span>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(_sidebar_footer_html(), unsafe_allow_html=True)
 
 
-# ── Import renderers ──
-from ui.page_knowledge import render as render_knowledge  # noqa: E402
-from ui.page_request import render as render_request      # noqa: E402
-from ui.page_list import render as render_list            # noqa: E402
-from ui.page_review_detail import render as render_detail # noqa: E402
-
-RENDERERS: dict[str, callable] = {
-    "knowledge": render_knowledge,
-    "request":   render_request,
-    "list":      render_list,
-    "detail":    render_detail,
+# ── Lazy page import (작업 5: 현재 페이지 모듈만 import) ──
+_PAGE_MODULES: dict[str, str] = {
+    "knowledge": "ui.page_knowledge",
+    "request":   "ui.page_request",
+    "list":      "ui.page_list",
+    "detail":    "ui.page_review_detail",
 }
 
-# ── Render current page ──
-RENDERERS[st.session_state.current_page]()
+_current = st.session_state.current_page
+_mod = import_module(_PAGE_MODULES[_current])
+_mod.render()

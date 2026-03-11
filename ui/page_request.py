@@ -31,6 +31,13 @@ BROADCAST_TYPES = [
 ]
 
 
+@st.dialog("심의 요청 등록 완료")
+def _show_success_dialog(request_id: str):
+    st.write(f"심의 요청이 등록되었습니다.\n\n요청 ID: {request_id[:8]}...")
+    if st.button("확인", type="primary", use_container_width=True):
+        st.rerun()
+
+
 def render() -> None:
     st.header("심의요청 등록")
     st.caption("심의할 문구를 입력하고 요청을 등록합니다.")
@@ -137,10 +144,7 @@ def render() -> None:
                 "requested_by": requested_by,
                 "items": items,
             })
-            st.success(
-                f"심의 요청이 등록되었습니다. "
-                f"(요청 ID: {result['id'][:8]}...)"
-            )
+            _show_success_dialog(result["id"])
         except ConnectionError as e:
             st.error(str(e))
         except Exception as e:

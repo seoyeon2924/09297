@@ -246,8 +246,105 @@ class IngestService:
 
     @staticmethod
     def generate_advanced_metadata(document_id: str) -> dict:
+        """각 청크에 대해 LLM으로 section_title, keywords를 추출하여
+        SQLite(Chunk)와 Chroma 메타데이터에 동시 반영한다."""
+        from ingest.metadata_generator import MetadataGenerator
+        from storage.models import AdvancedMetaStatus
+
+        doc = DocumentRepository.get(document_id)
+        if not doc:
+            return {"document_id": document_id, "status": "ERROR", "message": "문서를 찾을 수 없습니다."}
+
+        collection_key = get_collection_name_for_doc_type(doc["doc_type"])
+        collection = chroma_store.get_collection(collection_key)
+
+        DocumentRepository.update_document_advanced_meta_status(
+            document_id, AdvancedMetaStatus.RUNNING.value,
+        )
+
+        chunks = DocumentRepository.list_chunks(document_id)
+        total = len(chunks)
+        done_count = 0
+        fail_count = 0
+
+        progress = st.progress(0, text="고급 메타데이터 생성 중...")
+
+        for chunk in chunks:
+            chroma_id = chunk.get("chroma_id")
+            if not chroma_id:
+                fail_count += 1
+                continue
+
+            try:
+                chroma_result = collection.get(ids=[chroma_id], include=["documents", "metadatas"])
+
+                chunk_text = ""
+                if chroma_result and chroma_result.get("documents"):
+                    chunk_text = (chroma_result["documents"][0] or "").strip()
+
+                if not chunk_text:
+                    chunk_text = chunk.get("content_preview", "")
+
+                if not chunk_text:
+                    fail_count += 1
+                    continue
+
+                meta = MetadataGenerator.generate(chunk_text)
+                section_title = meta.get("section_title", "")
+                keywords = meta.get("keywords", [])
+
+                DocumentRepository.update_chunk_advanced_meta(
+                    chunk_id=chunk["id"],
+                    section_title=section_title,
+                    keywords=keywords,
+                    status=AdvancedMetaStatus.DONE.value,
+                )
+
+                existing_meta = {}
+                if (
+                    chroma_result
+                    and chroma_result.get("metadatas")
+                    and chroma_result["metadatas"]
+                ):
+                    existing_meta = dict(chroma_result["metadatas"][0] or {})
+
+                existing_meta["section_title"] = section_title
+                existing_meta["keywords"] = ", ".join(keywords) if keywords else ""
+
+                sanitized = chroma_store._sanitize_metadata(existing_meta)
+                collection.update(
+                    ids=[chroma_id],
+                    metadatas=[sanitized],
+                )
+
+                done_count += 1
+
+            except Exception as e:
+                logger.warning("청크 %s 메타 생성 실패: %s", chroma_id, e)
+                fail_count += 1
+
+            progress.progress(
+                (done_count + fail_count) / total,
+                text=f"고급 메타데이터 생성 중... ({done_count + fail_count}/{total})",
+            )
+
+        progress.empty()
+
+        if fail_count == 0:
+            final_status = AdvancedMetaStatus.DONE.value
+        elif done_count == 0:
+            final_status = AdvancedMetaStatus.PARTIAL_FAIL.value
+        else:
+            final_status = AdvancedMetaStatus.PARTIAL_FAIL.value
+
+        DocumentRepository.update_document_advanced_meta_status(
+            document_id, final_status,
+        )
+
         return {
             "document_id": document_id,
-            "status": "NOT_IMPLEMENTED",
-            "message": "고급 메타데이터 생성은 추후 구현됩니다.",
+            "status": final_status,
+            "total_chunks": total,
+            "done": done_count,
+            "failed": fail_count,
         }

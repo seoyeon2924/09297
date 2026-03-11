@@ -193,14 +193,34 @@ def _render_chunk_preview(doc_id: str) -> None:
 
     st.caption(f"총 {len(chunks)}개 청크")
     for c in chunks:
+        title_tag = ""
+        if c.get("section_title"):
+            title_tag = f"  [{c['section_title']}]"
+
         with st.expander(
-            f"#{c['chunk_index']}  |  {c.get('page_or_row', '')}  |  "
+            f"#{c['chunk_index']}{title_tag}  |  {c.get('page_or_row', '')}  |  "
             f"{(c.get('content_preview') or '')[:60]}…"
         ):
             st.text(c.get("content_preview", ""))
+
+            if c.get("section_title") or c.get("keywords"):
+                meta_col1, meta_col2 = st.columns(2)
+                with meta_col1:
+                    st.markdown(
+                        f"**섹션:** {c.get('section_title') or '-'}"
+                    )
+                with meta_col2:
+                    kw = c.get("keywords")
+                    if isinstance(kw, list):
+                        kw_str = ", ".join(kw)
+                    else:
+                        kw_str = str(kw) if kw else "-"
+                    st.markdown(f"**키워드:** {kw_str}")
+
             st.caption(
                 f"chroma_id: {c.get('chroma_id', '')}  |  "
-                f"source: {c.get('source_file', '')}"
+                f"source: {c.get('source_file', '')}  |  "
+                f"메타 상태: {c.get('advanced_meta_status', 'NONE')}"
             )
 
     if st.button("닫기", key="close_chunks"):
