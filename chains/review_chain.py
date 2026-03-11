@@ -540,33 +540,12 @@ def synthesizer_node(state: ReviewState) -> dict:
         default_result["reason"] = f"AI 생성 중 오류 발생: {str(e)}"
         result = default_result
 
-    # 검색 청크를 chroma_id 기준 lookup 테이블로 구성
-    all_search_refs = {
-        ref["chroma_id"]: ref
-        for ref in _context_to_refs(case_context, law_chunks, regulation_chunks, guideline_chunks)
-        if ref.get("chroma_id")
-    }
-
-    judgment = result.get("judgment", "").strip()
-    if judgment in ("OK", "적합", "문제없음"):
-        # OK 판정: LLM이 근거 없다고 판단 → 검색 청크를 강제 추가하지 않음
-        # 단, LLM이 반환한 references가 있으면 content를 채워줌
-        for ref in result.get("references", []):
-            cid = ref.get("chroma_id", "")
-            if cid and cid in all_search_refs and not (ref.get("content") or "").strip():
-                ref["content"] = all_search_refs[cid].get("content", "")
-    else:
-        # 위반소지/주의: LLM references에 content 보완 + 누락 청크 추가
-        for ref in result.get("references", []):
-            cid = ref.get("chroma_id", "")
-            if cid and cid in all_search_refs and not (ref.get("content") or "").strip():
-                ref["content"] = all_search_refs[cid].get("content", "")
-
-        existing_ids = {r.get("chroma_id") for r in result.get("references", []) if r.get("chroma_id")}
-        for cid, ref in all_search_refs.items():
-            if cid not in existing_ids:
-                result.setdefault("references", []).append(ref)
-                existing_ids.add(cid)
+    # LLM 선택 references에 검색된 전체 청크 보완
+    existing_ids = {r.get("chroma_id") for r in result.get("references", []) if r.get("chroma_id")}
+    for ref in _context_to_refs(case_context, law_chunks, regulation_chunks, guideline_chunks):
+        if ref["chroma_id"] not in existing_ids:
+            result.setdefault("references", []).append(ref)
+            existing_ids.add(ref["chroma_id"])
 
     elapsed = round(time.time() - start, 2)
     return {
@@ -871,29 +850,11 @@ async def synthesizer_node_async(state: ReviewState) -> dict:
         default_result["reason"] = f"AI 생성 중 오류 발생: {str(e)}"
         result = default_result
 
-    all_search_refs = {
-        ref["chroma_id"]: ref
-        for ref in _context_to_refs(case_context, law_chunks, regulation_chunks, guideline_chunks)
-        if ref.get("chroma_id")
-    }
-
-    judgment = result.get("judgment", "").strip()
-    if judgment in ("OK", "적합", "문제없음"):
-        for ref in result.get("references", []):
-            cid = ref.get("chroma_id", "")
-            if cid and cid in all_search_refs and not (ref.get("content") or "").strip():
-                ref["content"] = all_search_refs[cid].get("content", "")
-    else:
-        for ref in result.get("references", []):
-            cid = ref.get("chroma_id", "")
-            if cid and cid in all_search_refs and not (ref.get("content") or "").strip():
-                ref["content"] = all_search_refs[cid].get("content", "")
-
-        existing_ids = {r.get("chroma_id") for r in result.get("references", []) if r.get("chroma_id")}
-        for cid, ref in all_search_refs.items():
-            if cid not in existing_ids:
-                result.setdefault("references", []).append(ref)
-                existing_ids.add(cid)
+    existing_ids = {r.get("chroma_id") for r in result.get("references", []) if r.get("chroma_id")}
+    for ref in _context_to_refs(case_context, law_chunks, regulation_chunks, guideline_chunks):
+        if ref["chroma_id"] not in existing_ids:
+            result.setdefault("references", []).append(ref)
+            existing_ids.add(ref["chroma_id"])
 
     elapsed = round(time.time() - start, 2)
     return {
